@@ -1,0 +1,92 @@
+#view-login {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  background: radial-gradient(900px 500px at 15% -10%, var(--accent-softer), transparent), var(--bg);
+  flex-direction: column;
+  gap: 28px;
+  width: 100%;
+  min-height: 100vh;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 400px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: 36px 32px;
+}
+
+.login-brand {
+  margin-bottom: 26px;
+}
+
+.login-brand .brand-logo {
+  width: 170px;
+  height: auto;
+}
+
+.login-card h1 {
+  font-size: 21px;
+  margin-bottom: 4px;
+}
+
+.login-card p.lede {
+  color: var(--ink-soft);
+  font-size: 13.5px;
+  margin: 0 0 22px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 14px;
+}
+
+.field label {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--ink-soft);
+}
+
+.field input,
+.field select,
+.field textarea {
+  font-family: inherit;
+  font-size: 14.5px;
+  padding: 10px 12px;
+  border: 1.5px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--ink);
+  width: 100%;
+}
+
+.field input:focus,
+.field select:focus,
+.field textarea:focus {
+  border-color: var(--accent);
+}
+
+.login-demo-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 18px;
+}
+
+.login-demo-row .btn {
+  flex: 1;
+  font-size: 12.5px;
+  padding: 8px 10px;
+}
+
+.login-foot {
+  text-align: center;
+  color: var(--ink-faint);
+  font-size: 12px;
+  margin-top: 16px;
+}
