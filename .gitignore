@@ -11,6 +11,13 @@ node_modules
 dist
 dist-ssr
 *.local
+*.tsbuildinfo
+
+# Terraform state (never commit — can contain secrets like DB credentials)
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+*.tfvars
 
 # Editor directories and files
 .vscode/*
