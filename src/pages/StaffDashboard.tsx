@@ -32,13 +32,13 @@ export function StaffDashboard() {
       userInitials="MT"
       userPhoto="https://i.pravatar.cc/80?img=5"
       navItems={[
-        { label: "Dashboard", icon: <GridIcon />, active: true },
-        { label: "Parents", icon: <UsersIcon /> },
-        { label: "Children", icon: <ChildIcon /> },
-        { label: "Forms", icon: <DocIcon size={16} /> },
-        { label: "Reviews", icon: <ReviewsIcon />, badge: 12 },
-        { label: "Reports", icon: <ReportsIcon /> },
-        { label: "Settings", icon: <SettingsIcon /> },
+        { label: "Dashboard", icon: <GridIcon />, to: "/staff" },
+        { label: "Parents", icon: <UsersIcon />, to: "/staff" },
+        { label: "Children", icon: <ChildIcon />, to: "/staff" },
+        { label: "Forms", icon: <DocIcon size={16} />, to: "/staff" },
+        { label: "Reviews", icon: <ReviewsIcon />, to: "/staff", badge: 12 },
+        { label: "Reports", icon: <ReportsIcon />, to: "/staff" },
+        { label: "Settings", icon: <SettingsIcon />, to: "/staff" },
       ]}
     >
       <div className="page-head">

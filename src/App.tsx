@@ -1,7 +1,14 @@
 import { Route, Routes } from "react-router-dom";
 import { ToastProvider } from "./components/Toast";
+import { ParentDataProvider } from "./lib/ParentDataContext";
 import { Login } from "./pages/Login";
+import { ParentHome } from "./pages/ParentHome";
 import { ParentPortal } from "./pages/ParentPortal";
+import { MyChildren } from "./pages/MyChildren";
+import { WeeklyLogs } from "./pages/WeeklyLogs";
+import { Resources } from "./pages/Resources";
+import { Messages } from "./pages/Messages";
+import { HelpSupport } from "./pages/HelpSupport";
 import { StaffDashboard } from "./pages/StaffDashboard";
 import { AiInsights } from "./pages/AiInsights";
 
@@ -10,7 +17,22 @@ function App() {
     <ToastProvider>
       <Routes>
         <Route path="/" element={<Login />} />
-        <Route path="/parent" element={<ParentPortal />} />
+        <Route
+          path="/parent/*"
+          element={
+            <ParentDataProvider>
+              <Routes>
+                <Route index element={<ParentHome />} />
+                <Route path="weekly-log" element={<ParentPortal />} />
+                <Route path="children" element={<MyChildren />} />
+                <Route path="logs" element={<WeeklyLogs />} />
+                <Route path="resources" element={<Resources />} />
+                <Route path="messages" element={<Messages />} />
+                <Route path="help" element={<HelpSupport />} />
+              </Routes>
+            </ParentDataProvider>
+          }
+        />
         <Route path="/staff" element={<StaffDashboard />} />
         <Route path="/ai" element={<AiInsights />} />
       </Routes>

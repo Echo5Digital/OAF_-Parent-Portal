@@ -303,7 +303,7 @@ export function DailyLogForm({ child, dayIndex, entry, onChange, onComplete }: D
   );
 }
 
-export function WeekEndSection({ child }: { child: Child }) {
+export function WeekEndSection({ child, onSubmit }: { child: Child; onSubmit?: () => void }) {
   const { showToast } = useToast();
   const [parentSigned, setParentSigned] = useState<string | null>(null);
 
@@ -370,7 +370,13 @@ export function WeekEndSection({ child }: { child: Child }) {
           <button
             className="btn btn-primary"
             type="button"
-            onClick={() => showToast("Weekly report submitted — status: Awaiting Therapist Review")}
+            onClick={() => {
+              if (onSubmit) {
+                onSubmit();
+              } else {
+                showToast("Weekly report submitted — status: Awaiting Therapist Review");
+              }
+            }}
           >
             Submit Weekly Report
           </button>

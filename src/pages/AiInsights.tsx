@@ -54,13 +54,13 @@ export function AiInsights() {
       userInitials="BH"
       userPhoto="https://i.pravatar.cc/80?img=13"
       navItems={[
-        { label: "Dashboard", icon: <GridIcon /> },
-        { label: "Parents", icon: <UsersIcon /> },
-        { label: "Children", icon: <ChildIcon /> },
-        { label: "Forms", icon: <DocIcon size={16} /> },
-        { label: "AI Insights & Reporting", icon: <SparkleIcon size={16} />, active: true },
-        { label: "Reports", icon: <ReportsIcon /> },
-        { label: "Settings", icon: <SettingsIcon /> },
+        { label: "Dashboard", icon: <GridIcon />, to: "/ai" },
+        { label: "Parents", icon: <UsersIcon />, to: "/ai" },
+        { label: "Children", icon: <ChildIcon />, to: "/ai" },
+        { label: "Forms", icon: <DocIcon size={16} />, to: "/ai" },
+        { label: "AI Insights & Reporting", icon: <SparkleIcon size={16} />, to: "/ai" },
+        { label: "Reports", icon: <ReportsIcon />, to: "/ai" },
+        { label: "Settings", icon: <SettingsIcon />, to: "/ai" },
       ]}
     >
       <div className="page-head">

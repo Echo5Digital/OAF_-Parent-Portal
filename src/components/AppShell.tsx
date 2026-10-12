@@ -1,12 +1,12 @@
 import type { ReactNode } from "react";
+import { Link, useLocation } from "react-router-dom";
 import { BellIcon } from "./Icons";
 
 type NavItem = {
   label: string;
   icon: ReactNode;
   badge?: number;
-  active?: boolean;
-  onClick?: () => void;
+  to: string;
 };
 
 type AppShellProps = {
@@ -32,6 +32,8 @@ export function AppShell({
   hasNotification,
   children,
 }: AppShellProps) {
+  const location = useLocation();
+
   return (
     <div className="app-shell">
       <div className="sidebar">
@@ -39,16 +41,15 @@ export function AppShell({
           <img className="brand-logo" src="/open-arms-logo.png" alt="Open Arms" />
         </div>
         {navItems.map((item) => (
-          <button
+          <Link
             key={item.label}
-            className={`nav-item${item.active ? " active" : ""}`}
-            onClick={item.onClick}
-            type="button"
+            className={`nav-item${location.pathname === item.to ? " active" : ""}`}
+            to={item.to}
           >
             {item.icon}
             {item.label}
             {item.badge ? <span className="nav-badge">{item.badge}</span> : null}
-          </button>
+          </Link>
         ))}
         {footer ? <div className="sidebar-footer">{footer}</div> : null}
       </div>

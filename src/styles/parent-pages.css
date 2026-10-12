@@ -1,0 +1,249 @@
+/* Styles for the parent-portal pages beyond the main daily-log view:
+   Home, My Children, Weekly Logs, Resources, Messages, Help & Support. */
+
+.child-overview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+.child-overview-card {
+  display: flex;
+  gap: 14px;
+  text-align: left;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 18px;
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+}
+
+.child-overview-card:hover {
+  border-color: var(--accent);
+}
+
+.child-overview-card .pic {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.child-overview-card .meta {
+  flex: 1;
+  min-width: 0;
+}
+
+.child-overview-card .name-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 2px;
+}
+
+.child-overview-card .cname {
+  font-weight: 700;
+  font-size: 15.5px;
+}
+
+.child-overview-card .sub {
+  font-size: 13px;
+  color: var(--ink-faint);
+}
+
+.tag-chip {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  padding: 2px 7px;
+  border-radius: 99px;
+  background: var(--info-soft);
+  color: var(--info);
+}
+
+.tag-chip.respite {
+  background: var(--warn-soft);
+  color: var(--warn);
+}
+
+/* Messages */
+
+.messages-layout {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 16px;
+  min-height: 520px;
+}
+
+@media (max-width: 860px) {
+  .messages-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.thread-list {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  height: fit-content;
+}
+
+.thread-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 14px 16px;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  background: transparent;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+}
+
+.thread-item:last-child {
+  border-bottom: none;
+}
+
+.thread-item:hover,
+.thread-item.active {
+  background: var(--accent-softer);
+}
+
+.thread-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.thread-with {
+  font-weight: 700;
+  font-size: 14.5px;
+}
+
+.thread-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  flex-shrink: 0;
+}
+
+.thread-role {
+  font-size: 12.5px;
+  color: var(--ink-faint);
+  margin-top: 1px;
+}
+
+.thread-preview {
+  font-size: 13px;
+  color: var(--ink-soft);
+  margin-top: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.thread-detail {
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.thread-detail-head {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.thread-messages {
+  flex: 1;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow-y: auto;
+}
+
+.bubble {
+  max-width: 70%;
+  padding: 10px 14px;
+  border-radius: 14px;
+  font-size: 14px;
+}
+
+.bubble.them {
+  align-self: flex-start;
+  background: var(--surface-sunken);
+}
+
+.bubble.me {
+  align-self: flex-end;
+  background: var(--accent-soft);
+  color: var(--accent-ink);
+}
+
+.bubble-time {
+  font-size: 11px;
+  color: var(--ink-faint);
+  margin-top: 4px;
+}
+
+.thread-compose {
+  display: flex;
+  gap: 10px;
+  padding: 14px 20px;
+  border-top: 1px solid var(--border);
+}
+
+.thread-compose input {
+  flex: 1;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 14px;
+  font-family: inherit;
+  background: var(--bg);
+}
+
+/* Help & Support FAQ */
+
+.faq-item {
+  border-bottom: 1px solid var(--border);
+}
+
+.faq-item:last-child {
+  border-bottom: none;
+}
+
+.faq-question {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  text-align: left;
+  padding: 16px 20px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.faq-answer {
+  padding: 0 20px 18px;
+  font-size: 14px;
+  color: var(--ink-soft);
+  line-height: 1.5;
+}

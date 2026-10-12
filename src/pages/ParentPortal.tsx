@@ -1,47 +1,23 @@
-import { useState } from "react";
 import { AppShell } from "../components/AppShell";
 import { ChildRail } from "../components/ChildRail";
 import { DayRail } from "../components/DayRail";
 import { DailyLogForm, WeekEndSection } from "../components/DailyLogForm";
-import {
-  AlertCircleIcon,
-  DocIcon,
-  HeartIcon,
-  HelpIcon,
-  HomeIcon,
-  MessageIcon,
-  ResourcesIcon,
-  UsersIcon,
-} from "../components/Icons";
-import { buildInitialStore, CHILDREN, type DailyLogEntry } from "../data/model";
+import { AlertCircleIcon, HeartIcon } from "../components/Icons";
+import { parentNavItems } from "../components/parentNav";
 import { useToast } from "../components/Toast";
+import { CHILDREN, useParentData } from "../lib/ParentDataContext";
 
 const PARENT_PHOTO = "https://i.pravatar.cc/80?img=32";
 const HERO_PHOTO = "/hero-mother-daughter.png";
 
 export function ParentPortal() {
-  const [store, setStore] = useState(buildInitialStore);
-  const [currentChildId, setCurrentChildId] = useState("emma");
+  const { store, currentChildId, setCurrentChildId, loadError, setActiveDay, updateEntry, submitWeek } =
+    useParentData();
   const { showToast } = useToast();
 
   const child = CHILDREN.find((c) => c.id === currentChildId)!;
   const week = store[currentChildId];
   const activeEntry = week.days[week.activeDay];
-
-  function setActiveDay(index: number) {
-    setStore((prev) => ({
-      ...prev,
-      [currentChildId]: { ...prev[currentChildId], activeDay: index },
-    }));
-  }
-
-  function updateEntry(next: DailyLogEntry) {
-    setStore((prev) => {
-      const days = [...prev[currentChildId].days];
-      days[prev[currentChildId].activeDay] = next;
-      return { ...prev, [currentChildId]: { ...prev[currentChildId], days } };
-    });
-  }
 
   return (
     <AppShell
@@ -50,15 +26,7 @@ export function ParentPortal() {
       userInitials="JS"
       userPhoto={PARENT_PHOTO}
       hasNotification
-      navItems={[
-        { label: "Home", icon: <HomeIcon /> },
-        { label: "Parent Portal", icon: <UsersIcon />, active: true },
-        { label: "My Children", icon: <UsersIcon /> },
-        { label: "Weekly Logs", icon: <DocIcon size={16} />, badge: 2 },
-        { label: "Resources", icon: <ResourcesIcon /> },
-        { label: "Messages", icon: <MessageIcon />, badge: 2 },
-        { label: "Help & Support", icon: <HelpIcon /> },
-      ]}
+      navItems={parentNavItems(2)}
       footer={
         <>
           <HeartIcon />
@@ -86,6 +54,13 @@ export function ParentPortal() {
         </div>
       </div>
 
+      {loadError ? (
+        <div className="isolation-note" style={{ borderColor: "var(--danger, #c0392b)" }}>
+          <AlertCircleIcon />
+          <div>Couldn't load this child's log from the server: {loadError}. Showing local draft instead.</div>
+        </div>
+      ) : null}
+
       <ChildRail
         store={store}
         currentChild={currentChildId}
@@ -104,7 +79,7 @@ export function ParentPortal() {
         onComplete={() => {}}
       />
 
-      {week.activeDay === 6 ? <WeekEndSection child={child} /> : null}
+      {week.activeDay === 6 ? <WeekEndSection child={child} onSubmit={submitWeek} /> : null}
     </AppShell>
   );
 }
