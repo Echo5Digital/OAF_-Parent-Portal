@@ -1,5 +1,6 @@
 import { config } from "./config";
 import { getAccessToken } from "./auth";
+import type { DailyLogEntry } from "../data/model";
 
 export class ApiError extends Error {
   status: number;
@@ -40,19 +41,10 @@ export type ApiChild = {
   currentWeeklyLog: { id: string; weekStartDate: string; status: string } | null;
 };
 
-export type ApiDailyEntry = {
-  day_index: number;
-  entry_date: string;
+export type ApiDailyEntry = Omit<DailyLogEntry, "status"> & {
+  dayIndex: number;
+  entryDate: string;
   status: "empty" | "in_progress" | "complete";
-  start_time: string | null;
-  stop_time: string | null;
-  duration_minutes: number | null;
-  skill_area: string | null;
-  teaching_method: string | null;
-  child_performance: string | null;
-  notes: string | null;
-  itfc_safety_plan_reviewed: string | null;
-  itfc_supervision_level: string | null;
 };
 
 export type ApiWeeklyLog = {
@@ -72,24 +64,19 @@ export function getWeeklyLog(childId: string): Promise<{ weeklyLog: ApiWeeklyLog
   return request(`/children/${childId}/weekly-log`);
 }
 
-export type SaveDailyEntryInput = {
+export type SaveDailyEntryInput = Omit<DailyLogEntry, "status"> & {
   dayIndex: number;
-  startTime?: string;
-  stopTime?: string;
-  skillArea?: string;
-  teachingMethod?: string;
-  childPerformance?: string;
-  notes?: string;
-  itfcSafetyPlanReviewed?: string;
-  itfcSupervisionLevel?: string;
   markComplete?: boolean;
 };
 
 export function saveDailyEntry(childId: string, input: SaveDailyEntryInput) {
-  return request<{ status: ApiDailyEntry["status"]; durationMinutes: number | null; compliant: boolean | null }>(
-    `/children/${childId}/weekly-log/days/${input.dayIndex}`,
-    { method: "PUT", body: JSON.stringify(input) },
-  );
+  return request<{
+    status: ApiDailyEntry["status"];
+    basicLivingSkillsMinutes: number | null;
+    basicLivingSkillsCompliant: boolean | null;
+    socialSkillsMinutes: number | null;
+    socialSkillsCompliant: boolean | null;
+  }>(`/children/${childId}/weekly-log/days/${input.dayIndex}`, { method: "PUT", body: JSON.stringify(input) });
 }
 
 export function submitWeeklyLog(childId: string, summaryNotes?: string) {

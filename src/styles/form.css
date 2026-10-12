@@ -512,6 +512,52 @@
   font-family: var(--font-mono);
 }
 
+.ffield .checkbox-grid,
+.ffield .radio-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  margin-bottom: 8px;
+}
+
+.checkbox-grid-wide {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px 14px;
+}
+
+@media (max-width: 900px) {
+  .checkbox-grid-wide {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.checkbox-opt,
+.radio-opt {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13.5px;
+  color: var(--ink);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.checkbox-grid-wide .checkbox-opt {
+  white-space: normal;
+}
+
+.checkbox-opt input,
+.radio-opt input {
+  width: auto;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+.ffield input[type="text"] + input[type="text"] {
+  margin-top: 6px;
+}
+
 .compliance {
   display: flex;
   align-items: center;
@@ -542,6 +588,58 @@
   height: 1px;
   background: var(--border);
   margin: 22px 0;
+}
+
+.visitation-table th,
+.visitation-table td {
+  text-align: center;
+  white-space: nowrap;
+}
+
+.visitation-table th:first-child,
+.visitation-table td:first-child {
+  text-align: left;
+  min-width: 220px;
+}
+
+.visitor-label {
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--ink);
+  margin-bottom: 4px;
+}
+
+.visitation-table input[type="radio"] {
+  width: auto;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+.visitation-table input[type="text"] {
+  font-size: 13.5px;
+  padding: 6px 9px;
+}
+
+.medication-row {
+  position: relative;
+  padding-top: 4px;
+}
+
+.nested-card {
+  position: relative;
+  border: 1.5px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  padding: 16px 18px 8px;
+  margin-bottom: 16px;
+  background: var(--surface-sunken);
+}
+
+.btn-icon-only {
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding: 6px 10px;
+  color: var(--danger);
 }
 
 .conditional-box {

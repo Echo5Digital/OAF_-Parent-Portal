@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
-import { buildInitialStore, CHILDREN, type ChildWeek, type DailyLogEntry } from "../data/model";
+import { buildInitialStore, CHILDREN, type ChildWeek, type DailyLogEntry, type WeekSummary } from "../data/model";
 import { config } from "./config";
 import * as api from "./api";
 import { fromApiDailyEntry, toSaveDailyEntryInput } from "./weeklyLogAdapter";
@@ -14,6 +14,7 @@ type ParentDataValue = {
   loadError: string | null;
   setActiveDay: (index: number) => void;
   updateEntry: (next: DailyLogEntry) => void;
+  updateWeekSummary: (next: WeekSummary) => void;
   submitWeek: () => Promise<void>;
 };
 
@@ -41,7 +42,7 @@ export function ParentDataProvider({ children }: { children: ReactNode }) {
           const existing = prev[currentChildId];
           const nextDays = [...existing.days];
           for (const entry of days) {
-            nextDays[entry.day_index] = fromApiDailyEntry(entry, nextDays[entry.day_index]);
+            nextDays[entry.dayIndex] = fromApiDailyEntry(entry);
           }
           return { ...prev, [currentChildId]: { ...existing, days: nextDays } };
         });
@@ -70,6 +71,13 @@ export function ParentDataProvider({ children }: { children: ReactNode }) {
       .catch((err) => showToast(err instanceof Error ? err.message : "Failed to save — will retry"));
   }
 
+  function updateWeekSummary(next: WeekSummary) {
+    setStore((prev) => ({ ...prev, [currentChildId]: { ...prev[currentChildId], weekSummary: next } }));
+    // Not yet wired to the backend — no API endpoint exists for week-level
+    // summary data yet (see server/README.md). Local-only, same as the rest
+    // of this prototype when VITE_API_BASE_URL is unset.
+  }
+
   async function submitWeek() {
     if (!API_CONFIGURED) {
       showToast("Weekly report submitted — status: Awaiting Therapist Review");
@@ -85,7 +93,7 @@ export function ParentDataProvider({ children }: { children: ReactNode }) {
 
   return (
     <ParentDataContext.Provider
-      value={{ store, currentChildId, setCurrentChildId, loadError, setActiveDay, updateEntry, submitWeek }}
+      value={{ store, currentChildId, setCurrentChildId, loadError, setActiveDay, updateEntry, updateWeekSummary, submitWeek }}
     >
       {children}
     </ParentDataContext.Provider>

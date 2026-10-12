@@ -2,6 +2,7 @@ import { AppShell } from "../components/AppShell";
 import { ChildRail } from "../components/ChildRail";
 import { DayRail } from "../components/DayRail";
 import { DailyLogForm, WeekEndSection } from "../components/DailyLogForm";
+import { WeekSummarySection } from "../components/WeekSummarySection";
 import { AlertCircleIcon, HeartIcon } from "../components/Icons";
 import { parentNavItems } from "../components/parentNav";
 import { useToast } from "../components/Toast";
@@ -11,7 +12,7 @@ const PARENT_PHOTO = "https://i.pravatar.cc/80?img=32";
 const HERO_PHOTO = "/hero-mother-daughter.png";
 
 export function ParentPortal() {
-  const { store, currentChildId, setCurrentChildId, loadError, setActiveDay, updateEntry, submitWeek } =
+  const { store, currentChildId, setCurrentChildId, loadError, setActiveDay, updateEntry, updateWeekSummary, submitWeek } =
     useParentData();
   const { showToast } = useToast();
 
@@ -79,7 +80,12 @@ export function ParentPortal() {
         onComplete={() => {}}
       />
 
-      {week.activeDay === 6 ? <WeekEndSection child={child} onSubmit={submitWeek} /> : null}
+      {week.activeDay === 6 ? (
+        <>
+          <WeekSummarySection childName={child.name} summary={week.weekSummary} onChange={updateWeekSummary} />
+          <WeekEndSection child={child} onSubmit={submitWeek} />
+        </>
+      ) : null}
     </AppShell>
   );
 }

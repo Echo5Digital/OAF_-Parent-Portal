@@ -1,14 +1,20 @@
 import { useEffect, useRef, useState } from "react";
 import {
+  BEHAVIOR_CHECKLIST_OPTIONS,
+  BEHAVIOR_MANAGED_USING,
+  CHILD_RESPONSE_OPTIONS,
+  COMPLETION_LEVELS,
   DAY_NAMES,
-  PERFORMANCE_LEVELS,
   SKILL_AREAS,
+  SOCIAL_SKILL_AREAS,
   TEACHING_METHODS,
+  WORKBOOKS,
   parseTime,
   type Child,
   type DailyLogEntry,
+  type SkillActivity,
 } from "../data/model";
-import { CheckIcon, FlagCheckIcon, SignIcon, WarningIcon } from "./Icons";
+import { CheckIcon, SignIcon, WarningIcon } from "./Icons";
 import { useToast } from "./Toast";
 
 type SaveState = "saved" | "saving";
@@ -20,6 +26,181 @@ type DailyLogFormProps = {
   onChange: (next: DailyLogEntry) => void;
   onComplete: () => void;
 };
+
+function recalcMinutes(activity: SkillActivity): SkillActivity {
+  const a = parseTime(activity.start);
+  const b = parseTime(activity.stop);
+  if (a !== null && b !== null && b > a) {
+    return { ...activity, minutes: b - a };
+  }
+  return activity;
+}
+
+function toggleInList(list: string[], value: string): string[] {
+  return list.includes(value) ? list.filter((v) => v !== value) : [...list, value];
+}
+
+/**
+ * One timed skill block, used for both "Basic Living Skills (30 min required)"
+ * and "Social Skills (60 min required)" — same question set, different skill
+ * options and minimum, per the real Jotform structure.
+ */
+function SkillActivitySection({
+  title,
+  requiredMinutes,
+  skillOptions,
+  activity,
+  onChange,
+}: {
+  title: string;
+  requiredMinutes: number;
+  skillOptions: readonly string[];
+  activity: SkillActivity;
+  onChange: (next: SkillActivity) => void;
+}) {
+  function update<K extends keyof SkillActivity>(key: K, value: SkillActivity[K]) {
+    let next = { ...activity, [key]: value };
+    if (key === "start" || key === "stop") next = recalcMinutes(next);
+    onChange(next);
+  }
+
+  const duration = typeof activity.minutes === "number" ? activity.minutes : 0;
+  const compliant = duration >= requiredMinutes;
+
+  return (
+    <>
+      <div className="section-label">
+        {title} <span className="req">{requiredMinutes} min/day required</span>
+      </div>
+      <div className="frow">
+        <div className="ffield">
+          <label>
+            Start Time <span className="star">*</span>
+          </label>
+          <input type="text" placeholder="08:00 AM" value={activity.start} onChange={(e) => update("start", e.target.value)} />
+        </div>
+        <div className="ffield">
+          <label>
+            Stop Time <span className="star">*</span>
+          </label>
+          <input type="text" placeholder="08:30 AM" value={activity.stop} onChange={(e) => update("stop", e.target.value)} />
+        </div>
+        <div className="ffield">
+          <label>Tot Min</label>
+          <input type="text" className="mono" value={activity.minutes} readOnly style={{ background: "var(--surface-sunken)" }} />
+        </div>
+        <div className="ffield">
+          <label>Message</label>
+          <input
+            type="text"
+            className="mono"
+            readOnly
+            style={{ background: "var(--surface-sunken)" }}
+            value={duration === 0 ? "" : compliant ? "In Compliance" : "Not In Compliance"}
+          />
+        </div>
+      </div>
+
+      {duration > 0 ? (
+        <div className={`compliance ${compliant ? "ok" : "low"}`}>
+          {compliant ? <CheckIcon size={15} /> : <WarningIcon size={15} />}
+          <span className="big">{duration} min</span> logged —{" "}
+          {compliant
+            ? `meets the ${requiredMinutes}-minute daily minimum.`
+            : `below the ${requiredMinutes}-minute minimum required for compliance (need ${requiredMinutes - duration} more minutes).`}
+        </div>
+      ) : null}
+
+      <div className="ffield">
+        <label>
+          What skill did you work on? <span className="star">*</span>
+        </label>
+        <div className="checkbox-grid">
+          {skillOptions.map((s) => (
+            <label key={s} className="checkbox-opt">
+              <input type="checkbox" checked={activity.skills.includes(s)} onChange={() => update("skills", toggleInList(activity.skills, s))} />
+              {s}
+            </label>
+          ))}
+        </div>
+        {activity.skills.includes("Other") ? (
+          <input
+            type="text"
+            placeholder="Please type another option here"
+            value={activity.otherSkill}
+            onChange={(e) => update("otherSkill", e.target.value)}
+          />
+        ) : null}
+      </div>
+
+      <div className="ffield">
+        <label>
+          How did you work on skill today? <span className="star">*</span>
+        </label>
+        <div className="radio-row">
+          {TEACHING_METHODS.map((m) => (
+            <label key={m} className="radio-opt">
+              <input type="radio" name={`${title}-method`} checked={activity.method === m} onChange={() => update("method", m)} />
+              {m}
+            </label>
+          ))}
+        </div>
+        {activity.method === "Other" ? (
+          <input
+            type="text"
+            placeholder="Please type another option here"
+            value={activity.otherMethod}
+            onChange={(e) => update("otherMethod", e.target.value)}
+          />
+        ) : null}
+      </div>
+
+      <div className="ffield">
+        <label>
+          How did the child complete the skill? <span className="star">*</span>
+        </label>
+        <div className="radio-row">
+          {COMPLETION_LEVELS.map((c) => (
+            <label key={c} className="radio-opt">
+              <input type="radio" name={`${title}-completion`} checked={activity.completion === c} onChange={() => update("completion", c)} />
+              {c}
+            </label>
+          ))}
+        </div>
+        {activity.completion === "Other" ? (
+          <input
+            type="text"
+            placeholder="Please type another option here"
+            value={activity.otherCompletion}
+            onChange={(e) => update("otherCompletion", e.target.value)}
+          />
+        ) : null}
+      </div>
+
+      <div className="ffield" style={{ marginBottom: 0 }}>
+        <label>
+          How did child respond? <span className="star">*</span>
+        </label>
+        <div className="radio-row">
+          {CHILD_RESPONSE_OPTIONS.map((r) => (
+            <label key={r} className="radio-opt">
+              <input type="radio" name={`${title}-response`} checked={activity.response === r} onChange={() => update("response", r)} />
+              {r}
+            </label>
+          ))}
+        </div>
+        {activity.response === "Other" ? (
+          <input
+            type="text"
+            placeholder="Please type another option here"
+            value={activity.otherResponse}
+            onChange={(e) => update("otherResponse", e.target.value)}
+          />
+        ) : null}
+      </div>
+    </>
+  );
+}
 
 export function DailyLogForm({ child, dayIndex, entry, onChange, onComplete }: DailyLogFormProps) {
   const { showToast } = useToast();
@@ -37,28 +218,53 @@ export function DailyLogForm({ child, dayIndex, entry, onChange, onComplete }: D
     setSaveState("saving");
     window.clearTimeout(saveTimer.current);
     saveTimer.current = window.setTimeout(() => {
-      const status: DailyLogEntry["status"] =
-        next.status === "complete" ? "complete" : next.start && next.stop && next.performance && next.notes ? "progress" : next.status;
-      const saved: DailyLogEntry = { ...next, status };
-      onChange(saved);
+      onChange(next.status === "complete" ? next : { ...next, status: isStarted(next) ? "progress" : "empty" });
       setSaveState("saved");
     }, 600);
   }
 
-  function updateField<K extends keyof DailyLogEntry>(key: K, value: DailyLogEntry[K]) {
-    let next = { ...draft, [key]: value };
-    if (key === "start" || key === "stop") {
-      const a = parseTime(next.start);
-      const b = parseTime(next.stop);
-      if (a !== null && b !== null && b > a) {
-        next = { ...next, minutes: b - a };
-      }
+  function isStarted(e: DailyLogEntry): boolean {
+    return Boolean(e.dayRequired || e.respite || e.basicLivingSkills.start || e.describeWhatHappened);
+  }
+
+  function update<K extends keyof DailyLogEntry>(key: K, value: DailyLogEntry[K]) {
+    scheduleSave({ ...draft, [key]: value });
+  }
+
+  function requiredFieldsComplete(e: DailyLogEntry): boolean {
+    if (!e.dayRequired) return false;
+    if (e.dayRequired === "No") return true;
+    if (!e.respite) return false;
+    if (e.respite === "Yes") {
+      return Boolean(e.respiteWithOafcParent && e.parentSignature && e.signatureDate);
     }
-    scheduleSave(next);
+    const bls = e.basicLivingSkills;
+    const social = e.socialSkills;
+    return Boolean(
+      bls.start &&
+        bls.stop &&
+        bls.skills.length > 0 &&
+        bls.method &&
+        bls.completion &&
+        bls.response &&
+        e.itfc &&
+        e.describeWhatHappened &&
+        e.importantEvents &&
+        e.behaviorManagedUsing.length > 0 &&
+        social.start &&
+        social.stop &&
+        social.skills.length > 0 &&
+        social.method &&
+        social.completion &&
+        e.socialSkillsDescribeWhatHappened &&
+        e.behaviorChecklist.length > 0 &&
+        e.parentSignature &&
+        e.signatureDate,
+    );
   }
 
   function handleFinish() {
-    if (!draft.start || !draft.stop || !draft.performance || !draft.notes) {
+    if (!requiredFieldsComplete(draft)) {
       showToast("Please complete all required fields before finishing this day");
       return;
     }
@@ -73,8 +279,7 @@ export function DailyLogForm({ child, dayIndex, entry, onChange, onComplete }: D
     showToast("Draft saved — resume anytime");
   }
 
-  const duration = typeof draft.minutes === "number" ? draft.minutes : 0;
-  const compliant = duration >= 30;
+  const isRespiteDay = draft.respite === "Yes";
 
   return (
     <div className="card">
@@ -110,7 +315,7 @@ export function DailyLogForm({ child, dayIndex, entry, onChange, onComplete }: D
         <div className="meta-cell">
           <img className="meta-icon" src="/icon-child.png" alt="" />
           <div>
-            <div className="k">Assigned Child</div>
+            <div className="k">Client/Child Name</div>
             <div className="v">{child.name}</div>
             <div className="v-sub">Age {child.age}</div>
           </div>
@@ -118,186 +323,299 @@ export function DailyLogForm({ child, dayIndex, entry, onChange, onComplete }: D
         <div className="meta-cell">
           <img className="meta-icon" src="/icon-calendar.png" alt="" />
           <div>
-            <div className="k">Week Of</div>
+            <div className="k">Entry Date</div>
             <div className="v mono">Oct 7 – Oct 13, 2024</div>
           </div>
         </div>
         <div className="meta-cell">
           <img className="meta-icon" src="/icon-therapist.png" alt="" />
           <div>
-            <div className="k">Assigned Therapist</div>
+            <div className="k">OAFC Staff</div>
             <div className="v">{child.therapist}</div>
           </div>
         </div>
       </div>
 
       <div className="form-body">
-        {child.respite ? (
-          <div className="conditional-box">
-            <span className="flag">
-              <WarningIcon size={11} /> Respite Condition Active
-            </span>
-            <div style={{ fontSize: "12.5px", color: "var(--ink-soft)" }}>
-              {child.name} is currently in respite care this period. Standard daily-skills sections are hidden; the{" "}
-              <b>Respite Caregiver Log</b> applies instead for {DAY_NAMES[dayIndex]}.
+        <div className="ffield">
+          <label>
+            Is {DAY_NAMES[dayIndex]} Required? <span className="star">*</span>
+          </label>
+          <div className="radio-row">
+            <label className="radio-opt">
+              <input type="radio" name="dayRequired" checked={draft.dayRequired === "Yes"} onChange={() => update("dayRequired", "Yes")} />
+              Yes
+            </label>
+            <label className="radio-opt">
+              <input type="radio" name="dayRequired" checked={draft.dayRequired === "No"} onChange={() => update("dayRequired", "No")} />
+              No
+            </label>
+          </div>
+        </div>
+
+        {draft.dayRequired === "Yes" ? (
+          <div className="ffield">
+            <label>
+              Did this child have respite this day ({DAY_NAMES[dayIndex]})? <span className="star">*</span>
+            </label>
+            <div className="radio-row">
+              <label className="radio-opt">
+                <input type="radio" name="respite" checked={draft.respite === "Yes"} onChange={() => update("respite", "Yes")} />
+                Yes
+              </label>
+              <label className="radio-opt">
+                <input type="radio" name="respite" checked={draft.respite === "No"} onChange={() => update("respite", "No")} />
+                No
+              </label>
             </div>
           </div>
         ) : null}
 
-        {child.itfc ? (
-          <div className="conditional-box">
-            <span className="flag">
-              <FlagCheckIcon size={11} /> ITFC Classification
-            </span>
-            <div className="frow" style={{ marginBottom: 0, gridTemplateColumns: "1fr 1fr" }}>
-              <div className="ffield">
-                <label>
-                  Crisis/Safety Plan Reviewed <span className="star">*</span>
-                </label>
-                <select defaultValue="Yes — no concerns">
-                  <option>Yes — no concerns</option>
-                  <option>Yes — concerns noted below</option>
-                  <option>No</option>
-                </select>
-              </div>
-              <div className="ffield">
-                <label>
-                  Level of Supervision <span className="star">*</span>
-                </label>
-                <select defaultValue="Line of sight">
-                  <option>Line of sight</option>
-                  <option>Within hearing</option>
-                  <option>Independent</option>
-                </select>
-              </div>
-            </div>
-          </div>
-        ) : null}
-
-        {!child.respite ? (
+        {draft.dayRequired === "Yes" && isRespiteDay ? (
           <>
-            <div className="section-label">
-              Basic Living Skills <span className="req">30 min/day required</span>
+            <div className="ffield">
+              <label>
+                Was Respite with an OAFC Parent? <span className="star">*</span>
+              </label>
+              <div className="radio-row">
+                <label className="radio-opt">
+                  <input
+                    type="radio"
+                    name="respiteOafc"
+                    checked={draft.respiteWithOafcParent === "Yes"}
+                    onChange={() => update("respiteWithOafcParent", "Yes")}
+                  />
+                  Yes
+                </label>
+                <label className="radio-opt">
+                  <input
+                    type="radio"
+                    name="respiteOafc"
+                    checked={draft.respiteWithOafcParent === "No"}
+                    onChange={() => update("respiteWithOafcParent", "No")}
+                  />
+                  No
+                </label>
+              </div>
             </div>
-            <div className="frow">
-              <div className="ffield">
-                <label>
-                  Start Time <span className="star">*</span>
+            <SignatureField
+              label="Foster Parent Signature"
+              signature={draft.parentSignature}
+              date={draft.signatureDate}
+              onSign={(sig, date) => scheduleSave({ ...draft, parentSignature: sig, signatureDate: date })}
+            />
+          </>
+        ) : draft.dayRequired === "Yes" && draft.respite === "No" ? (
+          <>
+            <SkillActivitySection
+              title="Basic Living Skills"
+              requiredMinutes={30}
+              skillOptions={SKILL_AREAS}
+              activity={draft.basicLivingSkills}
+              onChange={(next) => update("basicLivingSkills", next)}
+            />
+
+            <div className="ffield">
+              <label>
+                ITFC Child? <span className="star">*</span>
+              </label>
+              <div className="radio-row">
+                <label className="radio-opt">
+                  <input type="radio" name="itfc" checked={draft.itfc === "Yes"} onChange={() => update("itfc", "Yes")} />
+                  Yes
                 </label>
-                <input
-                  type="text"
-                  placeholder="08:00 AM"
-                  value={draft.start}
-                  onChange={(e) => updateField("start", e.target.value)}
-                />
-              </div>
-              <div className="ffield">
-                <label>
-                  Stop Time <span className="star">*</span>
+                <label className="radio-opt">
+                  <input type="radio" name="itfc" checked={draft.itfc === "No"} onChange={() => update("itfc", "No")} />
+                  No
                 </label>
-                <input
-                  type="text"
-                  placeholder="08:30 AM"
-                  value={draft.stop}
-                  onChange={(e) => updateField("stop", e.target.value)}
-                />
-              </div>
-              <div className="ffield">
-                <label>Total Minutes</label>
-                <input
-                  type="text"
-                  className="mono"
-                  value={draft.minutes}
-                  readOnly
-                  style={{ background: "var(--surface-sunken)" }}
-                />
-              </div>
-              <div className="ffield">
-                <label>
-                  Skill Area <span className="star">*</span>
-                </label>
-                <select value={draft.skill} onChange={(e) => updateField("skill", e.target.value)}>
-                  {SKILL_AREAS.map((s) => (
-                    <option key={s}>{s}</option>
-                  ))}
-                </select>
               </div>
             </div>
 
-            {duration > 0 ? (
-              <div className={`compliance ${compliant ? "ok" : "low"}`}>
-                {compliant ? <CheckIcon size={15} /> : <WarningIcon size={15} />}
-                <span className="big">{duration} min</span> logged —{" "}
-                {compliant
-                  ? "meets the 30-minute daily minimum."
-                  : `below the 30-minute minimum required for compliance (need ${30 - duration} more minutes).`}
+            {draft.itfc === "Yes" ? (
+              <div className="ffield">
+                <label>What workbook did the child work on today?</label>
+                <div className="radio-row" style={{ flexWrap: "wrap" }}>
+                  {WORKBOOKS.map((w) => (
+                    <label key={w} className="radio-opt">
+                      <input type="radio" name="workbook" checked={draft.workbook === w} onChange={() => update("workbook", w)} />
+                      {w}
+                    </label>
+                  ))}
+                </div>
+                {draft.workbook === "Other" ? (
+                  <input
+                    type="text"
+                    placeholder="Please type another option here"
+                    value={draft.otherWorkbook}
+                    onChange={(e) => update("otherWorkbook", e.target.value)}
+                  />
+                ) : null}
               </div>
             ) : null}
 
+            <div className="ffield">
+              <label>
+                Describe what happened below: <span className="star">*</span>
+              </label>
+              <input type="text" value={draft.describeWhatHappened} onChange={(e) => update("describeWhatHappened", e.target.value)} />
+            </div>
+
+            <div className="ffield">
+              <label>
+                Important events that occurred at home/school: <span className="star">*</span>
+              </label>
+              <input type="text" value={draft.importantEvents} onChange={(e) => update("importantEvents", e.target.value)} />
+            </div>
+
+            <div className="ffield">
+              <label>
+                TFP managed behavior using: <span className="star">*</span>
+              </label>
+              <div className="checkbox-grid">
+                {BEHAVIOR_MANAGED_USING.map((b) => (
+                  <label key={b} className="checkbox-opt">
+                    <input
+                      type="checkbox"
+                      checked={draft.behaviorManagedUsing.includes(b)}
+                      onChange={() => update("behaviorManagedUsing", toggleInList(draft.behaviorManagedUsing, b))}
+                    />
+                    {b}
+                  </label>
+                ))}
+              </div>
+              {draft.behaviorManagedUsing.includes("Other") ? (
+                <input
+                  type="text"
+                  placeholder="Please type another option here"
+                  value={draft.otherBehaviorManaged}
+                  onChange={(e) => update("otherBehaviorManaged", e.target.value)}
+                />
+              ) : null}
+            </div>
+
             <div className="frow" style={{ gridTemplateColumns: "1fr 1fr" }}>
               <div className="ffield">
-                <label>
-                  Method of Teaching <span className="star">*</span>
-                </label>
-                <select value={draft.method} onChange={(e) => updateField("method", e.target.value)}>
-                  {TEACHING_METHODS.map((m) => (
-                    <option key={m}>{m}</option>
-                  ))}
-                </select>
+                <label>Positive Reinforcement — # of Times</label>
+                <input
+                  type="number"
+                  min={0}
+                  value={draft.positiveReinforcementCount}
+                  onChange={(e) => update("positiveReinforcementCount", e.target.value === "" ? "" : Number(e.target.value))}
+                />
               </div>
               <div className="ffield">
-                <label>
-                  Child Performance <span className="star">*</span>
-                </label>
-                <select value={draft.performance} onChange={(e) => updateField("performance", e.target.value)}>
-                  <option value="" disabled>
-                    Select...
-                  </option>
-                  {PERFORMANCE_LEVELS.map((p) => (
-                    <option key={p}>{p}</option>
-                  ))}
-                </select>
+                <label>Time Out/Restrictions — Minutes</label>
+                <input
+                  type="number"
+                  min={0}
+                  value={draft.timeOutMinutes}
+                  onChange={(e) => update("timeOutMinutes", e.target.value === "" ? "" : Number(e.target.value))}
+                />
               </div>
+            </div>
+
+            <SignatureField
+              label="Foster Parent Signature"
+              signature={draft.parentSignature}
+              date={draft.signatureDate}
+              onSign={(sig, date) => scheduleSave({ ...draft, parentSignature: sig, signatureDate: date })}
+            />
+
+            <SkillActivitySection
+              title="Social Skills"
+              requiredMinutes={60}
+              skillOptions={SOCIAL_SKILL_AREAS}
+              activity={draft.socialSkills}
+              onChange={(next) => update("socialSkills", next)}
+            />
+
+            <div className="ffield">
+              <label>
+                Describe what happened below: <span className="star">*</span>
+              </label>
+              <input
+                type="text"
+                value={draft.socialSkillsDescribeWhatHappened}
+                onChange={(e) => update("socialSkillsDescribeWhatHappened", e.target.value)}
+              />
             </div>
 
             <div className="ffield" style={{ marginBottom: 0 }}>
               <label>
-                Daily Notes <span className="star">*</span>
+                Daily Behavioral Checklist — Please check the box of ALL behaviors exhibited today{" "}
+                <span className="star">*</span>
               </label>
-              <textarea
-                maxLength={500}
-                placeholder="Describe the activity, behavior, and outcome..."
-                value={draft.notes}
-                onChange={(e) => updateField("notes", e.target.value)}
-              />
-              <div className="char-count">{draft.notes.length}/500</div>
+              <div className="checkbox-grid checkbox-grid-wide">
+                {BEHAVIOR_CHECKLIST_OPTIONS.map((b) => (
+                  <label key={b} className="checkbox-opt">
+                    <input
+                      type="checkbox"
+                      checked={draft.behaviorChecklist.includes(b)}
+                      onChange={() => update("behaviorChecklist", toggleInList(draft.behaviorChecklist, b))}
+                    />
+                    {b}
+                  </label>
+                ))}
+              </div>
             </div>
           </>
-        ) : (
-          <>
-            <div className="section-label">Respite Caregiver Summary</div>
-            <div className="ffield">
-              <label>Caregiver Notes</label>
-              <textarea
-                placeholder="Respite caregiver completes this section separately..."
-                value={draft.notes}
-                onChange={(e) => updateField("notes", e.target.value)}
-              />
-            </div>
-          </>
-        )}
+        ) : null}
       </div>
 
       <div className="form-foot">
         <div className="hint">Last saved just now</div>
         <div className="foot-actions">
           <button className="btn btn-ghost" onClick={handleDraft} type="button">
-            Save as Draft
+            Save and Continue Later
           </button>
           <button className="btn btn-primary" onClick={handleFinish} type="button">
             <CheckIcon /> Save {DAY_NAMES[dayIndex]} Log
           </button>
         </div>
+      </div>
+    </div>
+  );
+}
+
+function SignatureField({
+  label,
+  signature,
+  date,
+  onSign,
+}: {
+  label: string;
+  signature: string;
+  date: string;
+  onSign: (signature: string, date: string) => void;
+}) {
+  function sign() {
+    const today = new Date();
+    const mm = String(today.getMonth() + 1).padStart(2, "0");
+    const dd = String(today.getDate()).padStart(2, "0");
+    onSign("Jessica Smith", `${mm}-${dd}-${today.getFullYear()}`);
+  }
+
+  return (
+    <div className="frow" style={{ gridTemplateColumns: "1fr 1fr" }}>
+      <div className="ffield">
+        <label>
+          {label} <span className="star">*</span>
+        </label>
+        {signature ? (
+          <div className="sig-pad signed">
+            ✓ {signature} <span className="ts">Signed {date}</span>
+          </div>
+        ) : (
+          <div className="sig-pad" onClick={sign}>
+            Click to sign — Jessica Smith
+          </div>
+        )}
+      </div>
+      <div className="ffield">
+        <label>
+          Signature Date <span className="star">*</span>
+        </label>
+        <input type="text" className="mono" readOnly value={date} style={{ background: "var(--surface-sunken)" }} />
       </div>
     </div>
   );

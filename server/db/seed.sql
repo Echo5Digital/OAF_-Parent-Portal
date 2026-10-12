@@ -28,7 +28,23 @@ insert into weekly_logs (id, child_id, placement_id, household_id, week_start_da
   ('40000000-0000-0000-0000-000000000002', '20000000-0000-0000-0000-000000000002', '30000000-0000-0000-0000-000000000002', '10000000-0000-0000-0000-000000000001', '2026-10-05'),
   ('40000000-0000-0000-0000-000000000003', '20000000-0000-0000-0000-000000000003', '30000000-0000-0000-0000-000000000003', '10000000-0000-0000-0000-000000000001', '2026-10-05');
 
-insert into daily_entries (weekly_log_id, day_index, entry_date, status, start_time, stop_time, duration_minutes, skill_area, teaching_method, child_performance, notes) values
-  ('40000000-0000-0000-0000-000000000001', 0, '2026-10-05', 'complete', '08:00 AM', '08:30 AM', 30, 'Personal Hygiene', 'Model', 'With Minimal Assistance', 'Completed morning routine with minimal prompts.'),
-  ('40000000-0000-0000-0000-000000000001', 1, '2026-10-06', 'complete', '07:45 AM', '08:20 AM', 35, 'Meal Preparation', 'Guide', 'Independently', 'Helped prepare breakfast independently.'),
-  ('40000000-0000-0000-0000-000000000002', 0, '2026-10-05', 'in_progress', '06:30 PM', null, null, 'Personal Space', 'Model', null, null);
+-- `answers` matches the shape of DailyLogEntry in src/data/model.ts (frontend is
+-- the source of truth for field names since it was reconstructed from the live
+-- Jotform). Real values here are synthetic.
+insert into daily_entries (weekly_log_id, day_index, entry_date, status, is_respite_day, is_itfc_day, basic_living_skills_minutes, social_skills_minutes, answers) values
+  ('40000000-0000-0000-0000-000000000001', 0, '2026-10-05', 'complete', false, false, 30, 60, '{
+    "respite": "No",
+    "basicLivingSkills": {"start": "08:00 AM", "stop": "08:30 AM", "minutes": 30, "skills": ["1: Age appropriate hygiene/self-care"], "method": "Model", "completion": "w/Minimal Assistance", "response": "Listened/Modeled"},
+    "itfc": "No",
+    "describeWhatHappened": "Calm morning, cooperative throughout.",
+    "importantEvents": "None",
+    "behaviorManagedUsing": ["Guided redirection"],
+    "socialSkills": {"start": "04:00 PM", "stop": "05:00 PM", "minutes": 60, "skills": ["4: Social skills, sharing, taking turns"], "method": "Guided", "completion": "w/Minimal Assistance"},
+    "behaviorChecklist": [],
+    "parentSignature": "Jessica Smith",
+    "signatureDate": "10-05-2026"
+  }'::jsonb),
+  ('40000000-0000-0000-0000-000000000002', 0, '2026-10-05', 'in_progress', false, false, null, null, '{
+    "respite": "No",
+    "basicLivingSkills": {"start": "06:30 PM", "stop": "", "minutes": "", "skills": ["5: Care for personal space/Belongings"], "method": "Model"}
+  }'::jsonb);

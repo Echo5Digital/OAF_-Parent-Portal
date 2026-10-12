@@ -8,15 +8,7 @@ type DailyEntryRow = {
   day_index: number;
   entry_date: string;
   status: string;
-  start_time: string | null;
-  stop_time: string | null;
-  duration_minutes: number | null;
-  skill_area: string | null;
-  teaching_method: string | null;
-  child_performance: string | null;
-  notes: string | null;
-  itfc_safety_plan_reviewed: string | null;
-  itfc_supervision_level: string | null;
+  answers: Record<string, unknown>;
 };
 
 export async function handler(event: APIGatewayProxyEventV2): Promise<APIGatewayProxyStructuredResultV2> {
@@ -46,15 +38,16 @@ export async function handler(event: APIGatewayProxyEventV2): Promise<APIGateway
     }
 
     const days = await query<DailyEntryRow>(
-      `select day_index, entry_date, status, start_time, stop_time, duration_minutes,
-              skill_area, teaching_method, child_performance, notes,
-              itfc_safety_plan_reviewed, itfc_supervision_level
+      `select day_index, entry_date, status, answers
        from daily_entries
        where weekly_log_id = $1
        order by day_index`,
       [weeklyLog.id],
     );
 
-    return json(200, { weeklyLog, days });
+    return json(200, {
+      weeklyLog,
+      days: days.map((d) => ({ dayIndex: d.day_index, entryDate: d.entry_date, status: d.status, ...d.answers })),
+    });
   });
 }

@@ -108,22 +108,27 @@ create table weekly_logs (
 -- One row per day (1-7) within a weekly log. Independent per child/week by construction
 -- (FK to weekly_logs, which is itself unique per child+week) — this is what guarantees
 -- one child's edits can never bleed into another's, the core Phase One/Two requirement.
+--
+-- `answers` holds the full set of real Jotform fields (two timed skill-activity
+-- blocks, respite/ITFC branches, workbook selection, behavior checklist, signature,
+-- etc. — see src/data/model.ts on the frontend for the authoritative shape) as JSONB
+-- rather than one column per field. The real form has ~40 fields across several
+-- conditional branches and is still being reconstructed from the live Jotform
+-- (only Day 1 confirmed as of 2026-10-12) — JSONB avoids a migration on every field
+-- discovered later. `status`, `is_respite_day`, and `basic_living_skills_minutes`
+-- are pulled out as real columns because the API/reporting layer needs to query,
+-- filter, and compliance-check on them without parsing JSON.
 create table daily_entries (
   id uuid primary key default gen_random_uuid(),
   weekly_log_id uuid not null references weekly_logs(id) on delete cascade,
   day_index smallint not null check (day_index between 0 and 6),
   entry_date date not null,
   status day_status not null default 'empty',
-  start_time text,
-  stop_time text,
-  duration_minutes int,
-  skill_area text,
-  teaching_method text,
-  child_performance text,
-  notes text,
-  itfc_safety_plan_reviewed text,
-  itfc_supervision_level text,
-  is_respite_entry boolean not null default false,
+  is_respite_day boolean not null default false,
+  is_itfc_day boolean not null default false,
+  basic_living_skills_minutes int,
+  social_skills_minutes int,
+  answers jsonb not null default '{}'::jsonb,
   last_edited_by uuid references users(id),
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),

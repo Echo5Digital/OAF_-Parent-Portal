@@ -72,6 +72,12 @@ export const PlusIcon = ({ size = 14 }: IconProps) => (
   </svg>
 );
 
+export const TrashIcon = ({ size = 14 }: IconProps) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+    <path d="M4 7h16M9 7V4h6v3M6 7l1 13a2 2 0 002 2h6a2 2 0 002-2l1-13" />
+  </svg>
+);
+
 export const WarningIcon = ({ size = 15 }: IconProps) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.4}>
     <circle cx="12" cy="12" r="9" />

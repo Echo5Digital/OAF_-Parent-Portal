@@ -1,4 +1,4 @@
-import type { DailyLogEntry } from "../data/model";
+import { emptyDay, type DailyLogEntry } from "../data/model";
 import type { ApiDailyEntry, SaveDailyEntryInput } from "./api";
 
 const API_TO_LOCAL_STATUS: Record<ApiDailyEntry["status"], DailyLogEntry["status"]> = {
@@ -13,28 +13,22 @@ const LOCAL_TO_API_STATUS: Record<DailyLogEntry["status"], ApiDailyEntry["status
   complete: "complete",
 };
 
-export function fromApiDailyEntry(entry: ApiDailyEntry, fallback: DailyLogEntry): DailyLogEntry {
+export function fromApiDailyEntry(entry: ApiDailyEntry): DailyLogEntry {
+  const base = emptyDay();
   return {
+    ...base,
+    ...entry,
     status: API_TO_LOCAL_STATUS[entry.status],
-    start: entry.start_time ?? "",
-    stop: entry.stop_time ?? "",
-    minutes: entry.duration_minutes ?? "",
-    skill: entry.skill_area ?? fallback.skill,
-    method: entry.teaching_method ?? fallback.method,
-    performance: entry.child_performance ?? "",
-    notes: entry.notes ?? "",
+    basicLivingSkills: { ...base.basicLivingSkills, ...entry.basicLivingSkills },
+    socialSkills: { ...base.socialSkills, ...entry.socialSkills },
   };
 }
 
 export function toSaveDailyEntryInput(dayIndex: number, entry: DailyLogEntry): SaveDailyEntryInput {
+  const { status, ...rest } = entry;
   return {
+    ...rest,
     dayIndex,
-    startTime: entry.start || undefined,
-    stopTime: entry.stop || undefined,
-    skillArea: entry.skill || undefined,
-    teachingMethod: entry.method || undefined,
-    childPerformance: entry.performance || undefined,
-    notes: entry.notes || undefined,
-    markComplete: LOCAL_TO_API_STATUS[entry.status] === "complete",
+    markComplete: LOCAL_TO_API_STATUS[status] === "complete",
   };
 }
