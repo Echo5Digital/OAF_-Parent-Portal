@@ -639,7 +639,7 @@ export function WeekEndSection({ child, onSubmit }: { child: Child; onSubmit?: (
   }
 
   return (
-    <div className="card" style={{ marginTop: 20 }}>
+    <div className="card">
       <div className="form-head">
         <div className="ttl">
           <div className="ic">
@@ -649,6 +649,13 @@ export function WeekEndSection({ child, onSubmit }: { child: Child; onSubmit?: (
             <h3>End of Week Summary &amp; Signature</h3>
             <div className="desc">Complete after all 7 days are logged for {child.name.split(" ")[0]}.</div>
           </div>
+        </div>
+      </div>
+      <div className="isolation-note" style={{ margin: "16px 24px 0" }}>
+        <WarningIcon size={16} />
+        <div>
+          <b>Not yet confirmed against the real form.</b> This page's exact fields haven't been verified from the
+          live Jotform — shown here as a placeholder signature flow until Pages 10-11 are confirmed.
         </div>
       </div>
       <div className="form-body">

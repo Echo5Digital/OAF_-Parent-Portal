@@ -2,7 +2,8 @@ import { AppShell } from "../components/AppShell";
 import { ChildRail } from "../components/ChildRail";
 import { DayRail } from "../components/DayRail";
 import { DailyLogForm, WeekEndSection } from "../components/DailyLogForm";
-import { WeekSummarySection } from "../components/WeekSummarySection";
+import { RecreationVisitationSection } from "../components/RecreationVisitationSection";
+import { MedicalMedicationsSection } from "../components/MedicalMedicationsSection";
 import { AlertCircleIcon, HeartIcon } from "../components/Icons";
 import { parentNavItems } from "../components/parentNav";
 import { useToast } from "../components/Toast";
@@ -82,8 +83,13 @@ export function ParentPortal() {
           onComplete={() => {}}
         />
       ) : week.activeStep === 7 ? (
-        <WeekSummarySection childName={child.name} summary={week.weekSummary} onChange={updateWeekSummary} />
+        // Page 8: Recreational Activities + Visitor/Visitation Method only
+        <RecreationVisitationSection childName={child.name} summary={week.weekSummary} onChange={updateWeekSummary} />
       ) : week.activeStep === 8 ? (
+        // Page 9: Medical Appointments + Medications only
+        <MedicalMedicationsSection childName={child.name} summary={week.weekSummary} onChange={updateWeekSummary} />
+      ) : week.activeStep === 9 ? (
+        // Page 10: not yet confirmed from the real form — shown as a placeholder signature flow
         <WeekEndSection child={child} onSubmit={submitWeek} />
       ) : (
         <div className="card">

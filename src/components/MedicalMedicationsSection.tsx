@@ -3,18 +3,15 @@ import {
   MEDICATIONS,
   MEDICATION_DAYS,
   MEDICATION_FREQUENCIES,
-  RECREATIONAL_ACTIVITIES,
-  VISITATION_METHODS,
-  VISITOR_TYPES,
   emptyMedicalAppointmentRow,
   emptyMedicationRow,
   type MedicalAppointmentRow,
   type MedicationRow,
   type WeekSummary,
 } from "../data/model";
-import { ResourcesIcon, TrashIcon } from "./Icons";
+import { DocIcon, TrashIcon } from "./Icons";
 
-type WeekSummarySectionProps = {
+type MedicalMedicationsSectionProps = {
   childName: string;
   summary: WeekSummary;
   onChange: (next: WeekSummary) => void;
@@ -24,19 +21,10 @@ function toggleInList(list: string[], value: string): string[] {
   return list.includes(value) ? list.filter((v) => v !== value) : [...list, value];
 }
 
-/**
- * Pages 8-9 of the real 11-page Jotform: week-level Recreational
- * Activities / Visitation / Medical Appointments / Medications sections,
- * shown once per weekly log after all 7 days, not repeated per day.
- * See memory: real_jotform_structure.md for the confirmed field list.
- */
-export function WeekSummarySection({ childName, summary, onChange }: WeekSummarySectionProps) {
+/** Page 9 of the real 11-page Jotform: Medical Appointments + Medications, nothing else. */
+export function MedicalMedicationsSection({ childName, summary, onChange }: MedicalMedicationsSectionProps) {
   function update<K extends keyof WeekSummary>(key: K, value: WeekSummary[K]) {
     onChange({ ...summary, [key]: value });
-  }
-
-  function updateVisitor(visitorType: string, patch: Partial<WeekSummary["visitors"][string]>) {
-    update("visitors", { ...summary.visitors, [visitorType]: { ...summary.visitors[visitorType], ...patch } });
   }
 
   function updateMedicationRow(index: number, patch: Partial<MedicationRow>) {
@@ -74,84 +62,20 @@ export function WeekSummarySection({ childName, summary, onChange }: WeekSummary
   }
 
   return (
-    <div className="card" style={{ marginTop: 20 }}>
+    <div className="card">
       <div className="form-head">
         <div className="ttl">
           <div className="ic">
-            <ResourcesIcon />
+            <DocIcon />
           </div>
           <div>
-            <h3>Week Summary</h3>
-            <div className="desc">Recreational activities, visitation, and medications for {childName.split(" ")[0]} this week.</div>
+            <h3>Medical & Medications</h3>
+            <div className="desc">Medical appointments and medications for {childName.split(" ")[0]} this week.</div>
           </div>
         </div>
       </div>
 
       <div className="form-body">
-        <div className="ffield">
-          <label>Recreational Activities (Based on Child's Talent, Hobbies and Chosen Interests)</label>
-          <div className="checkbox-grid">
-            {RECREATIONAL_ACTIVITIES.map((a) => (
-              <label key={a} className="checkbox-opt">
-                <input
-                  type="checkbox"
-                  checked={summary.recreationalActivities.includes(a)}
-                  onChange={() => update("recreationalActivities", toggleInList(summary.recreationalActivities, a))}
-                />
-                {a}
-              </label>
-            ))}
-          </div>
-          {summary.recreationalActivities.includes("Other") ? (
-            <input
-              type="text"
-              placeholder="Please type another option here"
-              value={summary.otherRecreationalActivity}
-              onChange={(e) => update("otherRecreationalActivity", e.target.value)}
-            />
-          ) : null}
-        </div>
-
-        <div className="section-label">Visitor and Visitation Method</div>
-        <div className="table-scroll" style={{ marginBottom: 16 }}>
-          <table className="data visitation-table">
-            <thead>
-              <tr>
-                <th>Visitor Name</th>
-                {VISITATION_METHODS.map((m) => (
-                  <th key={m}>{m}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {VISITOR_TYPES.map((v) => (
-                <tr key={v}>
-                  <td>
-                    <div className="visitor-label">{v}</div>
-                    <input
-                      type="text"
-                      value={summary.visitors[v]?.visitorName ?? ""}
-                      onChange={(e) => updateVisitor(v, { visitorName: e.target.value })}
-                    />
-                  </td>
-                  {VISITATION_METHODS.map((m) => (
-                    <td key={m} style={{ textAlign: "center" }}>
-                      <input
-                        type="radio"
-                        name={`visitor-${v}`}
-                        checked={summary.visitors[v]?.method === m}
-                        onChange={() => updateVisitor(v, { method: m })}
-                      />
-                    </td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        <div className="divider" />
-
         <div className="ffield">
           <label>Medical Appointments</label>
           <div className="radio-row">
