@@ -10,11 +10,16 @@ import {
   type WeekSummary,
 } from "../data/model";
 import { DocIcon, TrashIcon } from "./Icons";
+import { useToast } from "./Toast";
+import { TimeInput } from "./TimeInput";
+import { DateInput } from "./DateInput";
 
 type MedicalMedicationsSectionProps = {
   childName: string;
   summary: WeekSummary;
   onChange: (next: WeekSummary) => void;
+  onBack: () => void;
+  onNext: () => void;
 };
 
 function toggleInList(list: string[], value: string): string[] {
@@ -22,7 +27,9 @@ function toggleInList(list: string[], value: string): string[] {
 }
 
 /** Page 9 of the real 11-page Jotform: Medical Appointments + Medications, nothing else. */
-export function MedicalMedicationsSection({ childName, summary, onChange }: MedicalMedicationsSectionProps) {
+export function MedicalMedicationsSection({ childName, summary, onChange, onBack, onNext }: MedicalMedicationsSectionProps) {
+  const { showToast } = useToast();
+
   function update<K extends keyof WeekSummary>(key: K, value: WeekSummary[K]) {
     onChange({ ...summary, [key]: value });
   }
@@ -123,12 +130,7 @@ export function MedicalMedicationsSection({ childName, summary, onChange }: Medi
                   </div>
                   <div className="ffield">
                     <label>Calendar</label>
-                    <input
-                      type="text"
-                      placeholder="MM-DD-YYYY"
-                      value={row.date}
-                      onChange={(e) => updateMedicalAppointmentRow(i, { date: e.target.value })}
-                    />
+                    <DateInput value={row.date} onChange={(v) => updateMedicalAppointmentRow(i, { date: v })} />
                   </div>
                   <div className="ffield">
                     <label>Meds Changed</label>
@@ -257,7 +259,7 @@ export function MedicalMedicationsSection({ childName, summary, onChange }: Medi
               {(["time1", "time2", "time3", "time4"] as const).map((key, idx) => (
                 <div className="ffield" key={key}>
                   <label>Time {idx + 1}</label>
-                  <input type="text" placeholder="HH:MM" value={row[key]} onChange={(e) => updateMedicationRow(i, { [key]: e.target.value })} />
+                  <TimeInput value={row[key]} onChange={(v) => updateMedicationRow(i, { [key]: v })} />
                 </div>
               ))}
             </div>
@@ -275,6 +277,27 @@ export function MedicalMedicationsSection({ childName, summary, onChange }: Medi
         <button className="btn btn-ghost" type="button" onClick={addMedicationRow}>
           + Add Row
         </button>
+      </div>
+
+      <div className="form-foot">
+        <button className="btn btn-ghost" type="button" onClick={onBack}>
+          Back 1 Page
+        </button>
+        <div className="foot-actions">
+          <button
+            className="btn btn-ghost"
+            type="button"
+            onClick={() => {
+              onChange(summary);
+              showToast("Draft saved — resume anytime");
+            }}
+          >
+            Save and Continue Later
+          </button>
+          <button className="btn btn-primary" type="button" onClick={onNext}>
+            Next Page
+          </button>
+        </div>
       </div>
     </div>
   );

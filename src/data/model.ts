@@ -311,10 +311,91 @@ export function emptyMedicalAppointmentRow(): MedicalAppointmentRow {
   return { type: "", date: "", medsChanged: "" };
 }
 
+/** Confirmed Page 10 ILS activities table rows, in order (2026-10-13). */
+export const ILS_ACTIVITIES = [
+  "Job Skills",
+  "Coping Skills",
+  "Nutrition/Diet",
+  "Community Resources",
+  "Transportation Tools",
+  "Educational Assistance",
+  "Finance/Budgeting",
+] as const;
+
+export type FireDrillRow = {
+  date: string;
+  minutesToEvacuate: number | "";
+  comments: string;
+};
+
+export function emptyFireDrillRow(): FireDrillRow {
+  return { date: "", minutesToEvacuate: "", comments: "" };
+}
+
+export const LIFE_BOOK_OPTIONS = [
+  "Pictures Added",
+  "Medical Services Added",
+  "Stories Added",
+  "Report Cards Added",
+  "School Awards Added",
+  "Educational Information Added",
+  "Other",
+] as const;
+
+/** Confirmed Page 11 "Allowance Given On:" table rows, in order (2026-10-13). */
+export const ALLOWANCE_ROWS = [
+  "Sunday",
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+  "Clothing Allowance ($30 Minimum)",
+  "Allowance Deduction (explain below)",
+] as const;
+
+export type SubstanceAbuseRow = {
+  date: string;
+  startTime: string;
+  endTime: string;
+};
+
+export function emptySubstanceAbuseRow(): SubstanceAbuseRow {
+  return { date: "", startTime: "", endTime: "" };
+}
+
+export const SUBSTANCE_ABUSE_TYPES = [
+  "Self-Esteem Building Activity",
+  "Alcohol",
+  "General Education",
+  "Tobacco",
+  "Drugs (Prescription)",
+  "Inhalants",
+] as const;
+
+export const IN_HOME_ACTIVITY_OPTIONS = ["Prevention/Education Materials", "Videos", "Handouts", "Other"] as const;
+
 /**
- * Pages 8-9 of the real 11-page form — week-level sections shown once per
+ * Confirmed Page 11 therapist directory (2026-10-13) — real Open Arms staff,
+ * used in this prototype with the user's explicit confirmation. Selecting a
+ * name auto-populates Therapist Email, same as the real form.
+ */
+export const THERAPISTS: { name: string; email: string }[] = [
+  { name: "Baker, Lori", email: "lori.baker@openarmsfostercare.com" },
+  { name: "Ball, Henri Jo", email: "henrijo.ball@openarmsfostercare.com" },
+  { name: "Burch, Karli", email: "karli.burch@openarmsfostercare.com" },
+  { name: "Michaud, Thomas", email: "tommichaud007@gmail.com" },
+  { name: "Nnaka, Emeka", email: "emeka.nnaka@openarmsfostercare.com" },
+  { name: "Thomas, Rebekah", email: "rebekah.thomas@openarmsfostercare.com" },
+  { name: "White, Breanna", email: "breanna.white@openarmsfostercare.com" },
+];
+
+/**
+ * Pages 8-11 of the real 11-page form — week-level sections shown once per
  * weekly log (not repeated per day, unlike Days 1-7). Confirmed from
- * screenshots 2026-10-12; pages 10-11 not yet captured.
+ * screenshots 2026-10-12 (pages 8-9) and 2026-10-13 (pages 10-11) — all 11
+ * pages of the real form are now captured.
  */
 export type WeekSummary = {
   recreationalActivities: string[];
@@ -324,11 +405,52 @@ export type WeekSummary = {
   /** Shown only when medicalAppointments === "Required"; "+ Click here to add another appointment" repeats this block (confirmed 2026-10-12). */
   medicalAppointmentRows: MedicalAppointmentRow[];
   medications: MedicationRow[];
+
+  // Page 10
+  independentLivingSkills: "" | "N/A" | "Required";
+  /** Minutes spent per ILS activity, keyed by activity name from ILS_ACTIVITIES — shown only when independentLivingSkills === "Required". */
+  ilsDurations: Record<string, number | "">;
+  ilsMethod: string;
+  ilsOtherMethod: string;
+  ilsCompletion: string;
+  ilsOtherCompletion: string;
+  ilsUnsupervisedHours: number | "";
+  ilsActivitiesReason: string;
+  fireDrill: "" | "N/A" | "Required";
+  /** Shown only when fireDrill === "Required"; "+ Add Row" repeats this block. */
+  fireDrillRows: FireDrillRow[];
+  lifeBook: string[];
+  otherLifeBook: string;
+
+  // Page 11
+  allowance: "" | "N/A" | "Required";
+  allowanceDeduction: string;
+  /** Keyed by ALLOWANCE_ROWS label. */
+  allowanceGiven: Record<string, number | "">;
+  substanceAbuseEducation: "" | "N/A" | "Required";
+  /** Shown only when substanceAbuseEducation === "Required"; "+ Add Row" repeats this block. */
+  substanceAbuseRows: SubstanceAbuseRow[];
+  substanceAbuseTypes: string[];
+  inHomeActivities: string[];
+  otherInHomeActivity: string;
+  /** 1 (Negative) through 10 (Positive) — a single selected value even though the real form renders it as a checkbox row. */
+  weeklyBehaviorAssessment: number | "";
+  parentSignature: string;
+  parentSignatureDate: string;
+  therapistName: string;
+  therapistEmail: string;
+  therapistSignature: string;
+  therapistSignatureDate: string;
+  therapistReviewTime: string;
 };
 
 export function emptyWeekSummary(): WeekSummary {
   const visitors: Record<string, VisitorRow> = {};
   for (const v of VISITOR_TYPES) visitors[v] = emptyVisitorRow();
+  const ilsDurations: Record<string, number | ""> = {};
+  for (const a of ILS_ACTIVITIES) ilsDurations[a] = "";
+  const allowanceGiven: Record<string, number | ""> = {};
+  for (const r of ALLOWANCE_ROWS) allowanceGiven[r] = "";
   return {
     recreationalActivities: [],
     otherRecreationalActivity: "",
@@ -336,6 +458,34 @@ export function emptyWeekSummary(): WeekSummary {
     medicalAppointments: "",
     medicalAppointmentRows: [emptyMedicalAppointmentRow()],
     medications: [emptyMedicationRow()],
+    independentLivingSkills: "",
+    ilsDurations,
+    ilsMethod: "",
+    ilsOtherMethod: "",
+    ilsCompletion: "",
+    ilsOtherCompletion: "",
+    ilsUnsupervisedHours: "",
+    ilsActivitiesReason: "",
+    fireDrill: "",
+    fireDrillRows: [emptyFireDrillRow()],
+    lifeBook: [],
+    otherLifeBook: "",
+    allowance: "",
+    allowanceDeduction: "",
+    allowanceGiven: allowanceGiven,
+    substanceAbuseEducation: "",
+    substanceAbuseRows: [emptySubstanceAbuseRow()],
+    substanceAbuseTypes: [],
+    inHomeActivities: [],
+    otherInHomeActivity: "",
+    weeklyBehaviorAssessment: "",
+    parentSignature: "",
+    parentSignatureDate: "",
+    therapistName: "",
+    therapistEmail: "",
+    therapistSignature: "",
+    therapistSignatureDate: "",
+    therapistReviewTime: "",
   };
 }
 
@@ -357,7 +507,7 @@ export const DAY_DATES = [
  * from screenshots (2026-10-12); 10-11 are not yet captured.
  */
 export const EXTRA_PAGE_NAMES = ["Page 8", "Page 9", "Page 10", "Page 11"];
-export const EXTRA_PAGE_LABELS = ["Recreation & Visitation", "Medical & Medications", "Not yet confirmed", "Not yet confirmed"];
+export const EXTRA_PAGE_LABELS = ["Recreation & Visitation", "Medical & Medications", "ILS & Fire Drill", "Allowance & Signatures"];
 
 export const CHILDREN: Child[] = [
   {

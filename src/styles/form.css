@@ -499,6 +499,66 @@
   border-color: var(--accent);
 }
 
+.time-input {
+  display: flex;
+  gap: 6px;
+}
+
+.time-input input {
+  flex: 1;
+  min-width: 0;
+  font-family: var(--font-mono);
+}
+
+.time-input select {
+  flex-shrink: 0;
+  width: 68px;
+  padding-left: 8px;
+  padding-right: 6px;
+}
+
+.date-input {
+  position: relative;
+}
+
+.date-input input[type="text"] {
+  width: 100%;
+  font-family: var(--font-mono);
+  padding-right: 36px;
+}
+
+.date-input-icon {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  color: var(--ink-faint);
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+.date-input-icon:hover {
+  background: var(--surface-sunken);
+  color: var(--accent-ink);
+}
+
+.date-input-native {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
 .ffield textarea {
   resize: vertical;
   min-height: 70px;
@@ -590,14 +650,14 @@
   margin: 22px 0;
 }
 
-.visitation-table th,
-.visitation-table td {
+table.data.visitation-table th,
+table.data.visitation-table td {
   text-align: center;
   white-space: nowrap;
 }
 
-.visitation-table th:first-child,
-.visitation-table td:first-child {
+table.data.visitation-table th:first-child,
+table.data.visitation-table td:first-child {
   text-align: left;
   min-width: 220px;
 }
@@ -716,6 +776,71 @@
   font-family: var(--font-mono);
   color: var(--ink-faint);
   font-weight: 400;
+}
+
+.signature-pad-wrap {
+  position: relative;
+  height: 90px;
+  border: 1.5px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  overflow: hidden;
+}
+
+.signature-pad-wrap:focus-within {
+  border-color: var(--accent);
+}
+
+.signature-pad-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  cursor: crosshair;
+  touch-action: none;
+}
+
+.signature-pad-canvas::after {
+  content: "";
+}
+
+.signature-pad-wrap::before {
+  content: "";
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: 26px;
+  height: 1px;
+  background: var(--border-strong);
+  pointer-events: none;
+}
+
+.signature-pad-placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ink-faint);
+  font-size: 14px;
+  pointer-events: none;
+}
+
+.signature-pad-clear {
+  position: absolute;
+  right: 8px;
+  bottom: 4px;
+  border: none;
+  background: transparent;
+  color: var(--accent-ink);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 2px 4px;
+}
+
+.signature-pad-clear:hover {
+  text-decoration: underline;
 }
 
 @media (max-width: 860px) {

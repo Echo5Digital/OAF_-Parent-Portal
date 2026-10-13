@@ -1,9 +1,12 @@
 import { AppShell } from "../components/AppShell";
 import { ChildRail } from "../components/ChildRail";
 import { DayRail } from "../components/DayRail";
-import { DailyLogForm, WeekEndSection } from "../components/DailyLogForm";
+import { DailyLogForm } from "../components/DailyLogForm";
 import { RecreationVisitationSection } from "../components/RecreationVisitationSection";
 import { MedicalMedicationsSection } from "../components/MedicalMedicationsSection";
+import { IlsFireDrillSection } from "../components/IlsFireDrillSection";
+import { AllowanceSubstanceSignatureSection } from "../components/AllowanceSubstanceSignatureSection";
+import { PrintableWeeklyLog } from "../components/PrintableWeeklyLog";
 import { AlertCircleIcon, HeartIcon } from "../components/Icons";
 import { parentNavItems } from "../components/parentNav";
 import { useToast } from "../components/Toast";
@@ -23,6 +26,7 @@ export function ParentPortal() {
   const activeEntry = isDayStep ? week.days[week.activeStep] : null;
 
   return (
+    <>
     <AppShell
       userName="Jessica Smith"
       userRole="Foster Parent"
@@ -84,26 +88,47 @@ export function ParentPortal() {
         />
       ) : week.activeStep === 7 ? (
         // Page 8: Recreational Activities + Visitor/Visitation Method only
-        <RecreationVisitationSection childName={child.name} summary={week.weekSummary} onChange={updateWeekSummary} />
+        <RecreationVisitationSection
+          key={currentChildId}
+          childName={child.name}
+          summary={week.weekSummary}
+          onChange={updateWeekSummary}
+          onBack={() => setActiveStep(6)}
+          onNext={() => setActiveStep(8)}
+        />
       ) : week.activeStep === 8 ? (
         // Page 9: Medical Appointments + Medications only
-        <MedicalMedicationsSection childName={child.name} summary={week.weekSummary} onChange={updateWeekSummary} />
+        <MedicalMedicationsSection
+          key={currentChildId}
+          childName={child.name}
+          summary={week.weekSummary}
+          onChange={updateWeekSummary}
+          onBack={() => setActiveStep(7)}
+          onNext={() => setActiveStep(9)}
+        />
       ) : week.activeStep === 9 ? (
-        // Page 10: not yet confirmed from the real form — shown as a placeholder signature flow
-        <WeekEndSection child={child} onSubmit={submitWeek} />
+        // Page 10: Independent Living Skills + Fire Drill + Life Book only
+        <IlsFireDrillSection
+          key={currentChildId}
+          childName={child.name}
+          summary={week.weekSummary}
+          onChange={updateWeekSummary}
+          onBack={() => setActiveStep(8)}
+          onNext={() => setActiveStep(10)}
+        />
       ) : (
-        <div className="card">
-          <div className="form-body" style={{ paddingTop: 20 }}>
-            <div className="isolation-note" style={{ marginBottom: 0 }}>
-              <AlertCircleIcon />
-              <div>
-                <b>This page hasn't been confirmed from the real form yet.</b> It'll be built once its fields are
-                shared from the live Jotform.
-              </div>
-            </div>
-          </div>
-        </div>
+        // Page 11: Allowance + Substance Abuse Education + weekly behavior assessment + signatures (final page)
+        <AllowanceSubstanceSignatureSection
+          key={currentChildId}
+          childName={child.name}
+          summary={week.weekSummary}
+          onChange={updateWeekSummary}
+          onBack={() => setActiveStep(9)}
+          onSubmit={submitWeek}
+        />
       )}
     </AppShell>
+    <PrintableWeeklyLog child={child} week={week} />
+    </>
   );
 }

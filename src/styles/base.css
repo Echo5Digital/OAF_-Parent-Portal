@@ -97,3 +97,38 @@ button {
 .btn-block {
   width: 100%;
 }
+
+/* Printing the full weekly log (Page 11's "Print" action — see PrintableWeeklyLog.tsx):
+   the printable copy renders off-screen at all times and is hidden on-screen; on print,
+   everything else is hidden and only it (and its children) become visible. */
+.print-only {
+  position: absolute;
+  left: -99999px;
+  top: 0;
+}
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+
+  .print-only,
+  .print-only * {
+    visibility: visible;
+  }
+
+  .print-only {
+    position: static;
+    left: auto;
+  }
+
+  .print-page {
+    break-after: page;
+    padding: 24px 0;
+  }
+
+  .print-page .form-foot,
+  .print-page .save-chip {
+    display: none;
+  }
+}

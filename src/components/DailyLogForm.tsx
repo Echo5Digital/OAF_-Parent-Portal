@@ -16,6 +16,8 @@ import {
 } from "../data/model";
 import { CheckIcon, SignIcon, WarningIcon } from "./Icons";
 import { useToast } from "./Toast";
+import { TimeInput } from "./TimeInput";
+import { SignatureField } from "./SignatureField";
 
 type SaveState = "saved" | "saving";
 
@@ -77,13 +79,13 @@ function SkillActivitySection({
           <label>
             Start Time <span className="star">*</span>
           </label>
-          <input type="text" placeholder="08:00 AM" value={activity.start} onChange={(e) => update("start", e.target.value)} />
+          <TimeInput value={activity.start} onChange={(v) => update("start", v)} />
         </div>
         <div className="ffield">
           <label>
             Stop Time <span className="star">*</span>
           </label>
-          <input type="text" placeholder="08:30 AM" value={activity.stop} onChange={(e) => update("stop", e.target.value)} />
+          <TimeInput value={activity.stop} onChange={(v) => update("stop", v)} />
         </div>
         <div className="ffield">
           <label>Tot Min</label>
@@ -400,6 +402,7 @@ export function DailyLogForm({ child, dayIndex, entry, onChange, onComplete }: D
             </div>
             <SignatureField
               label="Foster Parent Signature"
+              signerName="Jessica Smith"
               signature={draft.parentSignature}
               date={draft.signatureDate}
               onSign={(sig, date) => scheduleSave({ ...draft, parentSignature: sig, signatureDate: date })}
@@ -516,6 +519,7 @@ export function DailyLogForm({ child, dayIndex, entry, onChange, onComplete }: D
 
             <SignatureField
               label="Foster Parent Signature"
+              signerName="Jessica Smith"
               signature={draft.parentSignature}
               date={draft.signatureDate}
               onSign={(sig, date) => scheduleSave({ ...draft, parentSignature: sig, signatureDate: date })}
@@ -572,50 +576,6 @@ export function DailyLogForm({ child, dayIndex, entry, onChange, onComplete }: D
             <CheckIcon /> Save {DAY_NAMES[dayIndex]} Log
           </button>
         </div>
-      </div>
-    </div>
-  );
-}
-
-function SignatureField({
-  label,
-  signature,
-  date,
-  onSign,
-}: {
-  label: string;
-  signature: string;
-  date: string;
-  onSign: (signature: string, date: string) => void;
-}) {
-  function sign() {
-    const today = new Date();
-    const mm = String(today.getMonth() + 1).padStart(2, "0");
-    const dd = String(today.getDate()).padStart(2, "0");
-    onSign("Jessica Smith", `${mm}-${dd}-${today.getFullYear()}`);
-  }
-
-  return (
-    <div className="frow" style={{ gridTemplateColumns: "1fr 1fr" }}>
-      <div className="ffield">
-        <label>
-          {label} <span className="star">*</span>
-        </label>
-        {signature ? (
-          <div className="sig-pad signed">
-            ✓ {signature} <span className="ts">Signed {date}</span>
-          </div>
-        ) : (
-          <div className="sig-pad" onClick={sign}>
-            Click to sign — Jessica Smith
-          </div>
-        )}
-      </div>
-      <div className="ffield">
-        <label>
-          Signature Date <span className="star">*</span>
-        </label>
-        <input type="text" className="mono" readOnly value={date} style={{ background: "var(--surface-sunken)" }} />
       </div>
     </div>
   );

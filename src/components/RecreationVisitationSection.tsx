@@ -1,10 +1,13 @@
 import { RECREATIONAL_ACTIVITIES, VISITATION_METHODS, VISITOR_TYPES, type WeekSummary } from "../data/model";
 import { ResourcesIcon } from "./Icons";
+import { useToast } from "./Toast";
 
 type RecreationVisitationSectionProps = {
   childName: string;
   summary: WeekSummary;
   onChange: (next: WeekSummary) => void;
+  onBack: () => void;
+  onNext: () => void;
 };
 
 function toggleInList(list: string[], value: string): string[] {
@@ -12,7 +15,9 @@ function toggleInList(list: string[], value: string): string[] {
 }
 
 /** Page 8 of the real 11-page Jotform: Recreational Activities + Visitor/Visitation Method, nothing else. */
-export function RecreationVisitationSection({ childName, summary, onChange }: RecreationVisitationSectionProps) {
+export function RecreationVisitationSection({ childName, summary, onChange, onBack, onNext }: RecreationVisitationSectionProps) {
+  const { showToast } = useToast();
+
   function update<K extends keyof WeekSummary>(key: K, value: WeekSummary[K]) {
     onChange({ ...summary, [key]: value });
   }
@@ -96,6 +101,27 @@ export function RecreationVisitationSection({ childName, summary, onChange }: Re
               ))}
             </tbody>
           </table>
+        </div>
+      </div>
+
+      <div className="form-foot">
+        <button className="btn btn-ghost" type="button" onClick={onBack}>
+          Back 1 Page
+        </button>
+        <div className="foot-actions">
+          <button
+            className="btn btn-ghost"
+            type="button"
+            onClick={() => {
+              onChange(summary);
+              showToast("Draft saved — resume anytime");
+            }}
+          >
+            Save and Continue Later
+          </button>
+          <button className="btn btn-primary" type="button" onClick={onNext}>
+            Next Page
+          </button>
         </div>
       </div>
     </div>
