@@ -48,3 +48,13 @@ insert into daily_entries (weekly_log_id, day_index, entry_date, status, is_resp
     "respite": "No",
     "basicLivingSkills": {"start": "06:30 PM", "stop": "", "minutes": "", "skills": ["5: Care for personal space/Belongings"], "method": "Model"}
   }'::jsonb);
+
+-- Give Sophie's log a signed-and-awaiting-review status and an open correction
+-- request so the staff dashboard's stat tiles and submissions list aren't all
+-- zero/empty against this minimal seed set.
+update weekly_logs
+set status = 'awaiting_therapist_review', parent_signed_by = '00000000-0000-0000-0000-000000000001', parent_signed_at = now()
+where id = '40000000-0000-0000-0000-000000000003';
+
+insert into correction_requests (weekly_log_id, requested_by, reason) values
+  ('40000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000004', 'Please clarify the Day 2 notes for Emma — description is too brief for compliance review.');

@@ -85,3 +85,67 @@ export function submitWeeklyLog(childId: string, summaryNotes?: string) {
     body: JSON.stringify({ summaryNotes }),
   });
 }
+
+export type StaffDashboardStats = {
+  activeFosterHomes: number;
+  activeChildren: number;
+  pendingWeeklyLogs: number;
+  awaitingTherapistSignature: number;
+  openCorrectionRequests: number;
+};
+
+export type StaffDashboardSubmission = {
+  submittedAt: string | null;
+  parentName: string;
+  childName: string;
+  weekStartDate: string;
+  status: string;
+};
+
+export function getStaffDashboard(): Promise<{ stats: StaffDashboardStats; recentSubmissions: StaffDashboardSubmission[] }> {
+  return request("/staff/dashboard");
+}
+
+export type StaffParent = {
+  userId: string;
+  name: string;
+  email: string;
+  isActive: boolean;
+  householdId: string | null;
+  householdLabel: string | null;
+  children: { id: string; name: string }[];
+};
+
+export function getStaffParents(): Promise<{ parents: StaffParent[] }> {
+  return request("/staff/parents");
+}
+
+export type StaffChild = {
+  id: string;
+  name: string;
+  dateOfBirth: string | null;
+  classification: "TFC" | "ITFC" | "CFC";
+  isItfc: boolean;
+  therapistName: string | null;
+  householdLabel: string | null;
+  placementType: "foster" | "respite" | null;
+};
+
+export function getStaffChildren(): Promise<{ children: StaffChild[] }> {
+  return request("/staff/children");
+}
+
+export type StaffForm = {
+  id: string;
+  weekStartDate: string;
+  status: string;
+  parentName: string;
+  childName: string;
+  parentSignedAt: string | null;
+  therapistSignedAt: string | null;
+  openCorrections: number;
+};
+
+export function getStaffForms(status?: string): Promise<{ forms: StaffForm[] }> {
+  return request(`/staff/forms${status ? `?status=${encodeURIComponent(status)}` : ""}`);
+}

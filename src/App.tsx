@@ -10,6 +10,12 @@ import { Resources } from "./pages/Resources";
 import { Messages } from "./pages/Messages";
 import { HelpSupport } from "./pages/HelpSupport";
 import { StaffDashboard } from "./pages/StaffDashboard";
+import { StaffParents } from "./pages/StaffParents";
+import { StaffChildren } from "./pages/StaffChildren";
+import { StaffForms } from "./pages/StaffForms";
+import { StaffReviews } from "./pages/StaffReviews";
+import { StaffReports } from "./pages/StaffReports";
+import { StaffSettings } from "./pages/StaffSettings";
 import { AiInsights } from "./pages/AiInsights";
 
 function App() {
@@ -34,6 +40,12 @@ function App() {
           }
         />
         <Route path="/staff" element={<StaffDashboard />} />
+        <Route path="/staff/parents" element={<StaffParents />} />
+        <Route path="/staff/children" element={<StaffChildren />} />
+        <Route path="/staff/forms" element={<StaffForms />} />
+        <Route path="/staff/reviews" element={<StaffReviews />} />
+        <Route path="/staff/reports" element={<StaffReports />} />
+        <Route path="/staff/settings" element={<StaffSettings />} />
         <Route path="/ai" element={<AiInsights />} />
       </Routes>
     </ToastProvider>

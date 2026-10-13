@@ -61,10 +61,14 @@ locals {
   }
 
   handlers = {
-    getMyChildren   = { route = "GET /children" }
-    getWeeklyLog    = { route = "GET /children/{childId}/weekly-log" }
-    saveDailyEntry  = { route = "PUT /children/{childId}/weekly-log/days/{dayIndex}" }
-    submitWeeklyLog = { route = "POST /children/{childId}/weekly-log/submit" }
+    getMyChildren     = { route = "GET /children" }
+    getWeeklyLog      = { route = "GET /children/{childId}/weekly-log" }
+    saveDailyEntry    = { route = "PUT /children/{childId}/weekly-log/days/{dayIndex}" }
+    submitWeeklyLog   = { route = "POST /children/{childId}/weekly-log/submit" }
+    getStaffDashboard = { route = "GET /staff/dashboard" }
+    getStaffParents   = { route = "GET /staff/parents" }
+    getStaffChildren  = { route = "GET /staff/children" }
+    getStaffForms     = { route = "GET /staff/forms" }
   }
 }
 
