@@ -350,6 +350,15 @@ export const DAY_DATES = [
   "Sun, Oct 13",
 ];
 
+/**
+ * Pages 8-11 of the real 11-page Jotform, shown as additional boxes after Day 7
+ * in the same tab row/design (user explicitly wants the 1-11 boxes in one
+ * continuous row, not a separate button or stepper widget). 8-9 are confirmed
+ * from screenshots (2026-10-12); 10-11 are not yet captured.
+ */
+export const EXTRA_PAGE_NAMES = ["Page 8", "Page 9", "Page 10", "Page 11"];
+export const EXTRA_PAGE_LABELS = ["Recreation & Visitation", "Medical & Medications", "Not yet confirmed", "Not yet confirmed"];
+
 export const CHILDREN: Child[] = [
   {
     id: "emma",
@@ -416,7 +425,8 @@ export function emptyDay(): DailyLogEntry {
 }
 
 export type ChildWeek = {
-  activeDay: number;
+  /** 0-10: 0-6 select Days 1-7 (indexes into `days`), 7-10 select pages 8-11 (week-level content). */
+  activeStep: number;
   days: DailyLogEntry[];
   weekSummary: WeekSummary;
 };
@@ -424,7 +434,7 @@ export type ChildWeek = {
 export function buildInitialStore(): Record<string, ChildWeek> {
   const store: Record<string, ChildWeek> = {};
   for (const c of CHILDREN) {
-    store[c.id] = { activeDay: 0, days: DAY_NAMES.map(() => emptyDay()), weekSummary: emptyWeekSummary() };
+    store[c.id] = { activeStep: 0, days: DAY_NAMES.map(() => emptyDay()), weekSummary: emptyWeekSummary() };
   }
 
   store.emma.days[0] = {
@@ -457,7 +467,7 @@ export function buildInitialStore(): Record<string, ChildWeek> {
     parentSignature: "Jessica Smith",
     signatureDate: "10-07-2026",
   };
-  store.emma.activeDay = 1;
+  store.emma.activeStep = 1;
 
   store.liam.days[0] = {
     ...emptyDay(),
@@ -471,8 +481,8 @@ export function buildInitialStore(): Record<string, ChildWeek> {
       method: "Model",
     },
   };
-  store.liam.activeDay = 0;
-  store.sophie.activeDay = 0;
+  store.liam.activeStep = 0;
+  store.sophie.activeStep = 0;
 
   return store;
 }

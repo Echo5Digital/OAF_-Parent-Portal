@@ -12,13 +12,14 @@ const PARENT_PHOTO = "https://i.pravatar.cc/80?img=32";
 const HERO_PHOTO = "/hero-mother-daughter.png";
 
 export function ParentPortal() {
-  const { store, currentChildId, setCurrentChildId, loadError, setActiveDay, updateEntry, updateWeekSummary, submitWeek } =
+  const { store, currentChildId, setCurrentChildId, loadError, setActiveStep, updateEntry, updateWeekSummary, submitWeek } =
     useParentData();
   const { showToast } = useToast();
 
   const child = CHILDREN.find((c) => c.id === currentChildId)!;
   const week = store[currentChildId];
-  const activeEntry = week.days[week.activeDay];
+  const isDayStep = week.activeStep < 7;
+  const activeEntry = isDayStep ? week.days[week.activeStep] : null;
 
   return (
     <AppShell
@@ -69,23 +70,34 @@ export function ParentPortal() {
         onAddChild={() => showToast("Staff-managed: contact Open Arms to add a child to your household")}
       />
 
-      <DayRail days={week.days} activeDay={week.activeDay} onSelect={setActiveDay} />
+      <DayRail days={week.days} activeStep={week.activeStep} onSelect={setActiveStep} />
 
-      <DailyLogForm
-        key={`${currentChildId}-${week.activeDay}`}
-        child={child}
-        dayIndex={week.activeDay}
-        entry={activeEntry}
-        onChange={updateEntry}
-        onComplete={() => {}}
-      />
-
-      {week.activeDay === 6 ? (
-        <>
-          <WeekSummarySection childName={child.name} summary={week.weekSummary} onChange={updateWeekSummary} />
-          <WeekEndSection child={child} onSubmit={submitWeek} />
-        </>
-      ) : null}
+      {isDayStep && activeEntry ? (
+        <DailyLogForm
+          key={`${currentChildId}-${week.activeStep}`}
+          child={child}
+          dayIndex={week.activeStep}
+          entry={activeEntry}
+          onChange={updateEntry}
+          onComplete={() => {}}
+        />
+      ) : week.activeStep === 7 ? (
+        <WeekSummarySection childName={child.name} summary={week.weekSummary} onChange={updateWeekSummary} />
+      ) : week.activeStep === 8 ? (
+        <WeekEndSection child={child} onSubmit={submitWeek} />
+      ) : (
+        <div className="card">
+          <div className="form-body" style={{ paddingTop: 20 }}>
+            <div className="isolation-note" style={{ marginBottom: 0 }}>
+              <AlertCircleIcon />
+              <div>
+                <b>This page hasn't been confirmed from the real form yet.</b> It'll be built once its fields are
+                shared from the live Jotform.
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </AppShell>
   );
 }

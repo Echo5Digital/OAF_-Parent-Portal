@@ -12,7 +12,7 @@ type ParentDataValue = {
   currentChildId: string;
   setCurrentChildId: (id: string) => void;
   loadError: string | null;
-  setActiveDay: (index: number) => void;
+  setActiveStep: (step: number) => void;
   updateEntry: (next: DailyLogEntry) => void;
   updateWeekSummary: (next: WeekSummary) => void;
   submitWeek: () => Promise<void>;
@@ -51,23 +51,24 @@ export function ParentDataProvider({ children }: { children: ReactNode }) {
       .catch((err) => setLoadError(err instanceof Error ? err.message : "Failed to load weekly log"));
   }, [currentChildId]);
 
-  function setActiveDay(index: number) {
+  function setActiveStep(step: number) {
     setStore((prev) => ({
       ...prev,
-      [currentChildId]: { ...prev[currentChildId], activeDay: index },
+      [currentChildId]: { ...prev[currentChildId], activeStep: step },
     }));
   }
 
   function updateEntry(next: DailyLogEntry) {
+    const dayIndex = store[currentChildId].activeStep;
     setStore((prev) => {
       const days = [...prev[currentChildId].days];
-      days[prev[currentChildId].activeDay] = next;
+      days[dayIndex] = next;
       return { ...prev, [currentChildId]: { ...prev[currentChildId], days } };
     });
 
     if (!API_CONFIGURED) return;
     api
-      .saveDailyEntry(currentChildId, toSaveDailyEntryInput(store[currentChildId].activeDay, next))
+      .saveDailyEntry(currentChildId, toSaveDailyEntryInput(dayIndex, next))
       .catch((err) => showToast(err instanceof Error ? err.message : "Failed to save — will retry"));
   }
 
@@ -93,7 +94,7 @@ export function ParentDataProvider({ children }: { children: ReactNode }) {
 
   return (
     <ParentDataContext.Provider
-      value={{ store, currentChildId, setCurrentChildId, loadError, setActiveDay, updateEntry, updateWeekSummary, submitWeek }}
+      value={{ store, currentChildId, setCurrentChildId, loadError, setActiveStep, updateEntry, updateWeekSummary, submitWeek }}
     >
       {children}
     </ParentDataContext.Provider>
